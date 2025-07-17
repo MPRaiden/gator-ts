@@ -1,8 +1,9 @@
-import { handlerLogin, registerCommand, runCommand } from "./handlers";
+import { handlerLogin, handlerRegister, registerCommand, runCommand } from "./handlers";
 
-function main() {
+async function main() {
   const commandsRegistry = {}
-  registerCommand(commandsRegistry, 'login', handlerLogin)
+  await registerCommand(commandsRegistry, 'login', handlerLogin)
+  await registerCommand(commandsRegistry, 'register', handlerRegister)
 
   const args = process.argv
   const userArgs = args.slice(2)
@@ -16,7 +17,7 @@ function main() {
   const commArgs = userArgs.slice(1)
 
   try {
-    runCommand(commandsRegistry, commandName, ...commArgs)
+    await runCommand(commandsRegistry, commandName, ...commArgs)
   } catch(error) {
     if (error instanceof Error) {
       console.log(`function main() - error messsage:\n${error.message}`)
@@ -26,7 +27,9 @@ function main() {
       process.exit(1)
     }
   }
+
+  process.exit(0)
 }
 
-main()
+await main()
 
