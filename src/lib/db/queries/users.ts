@@ -12,3 +12,7 @@ export async function getUser(name:string) {
   return foundUser
 }
 
+export async function clearUsers() {
+  await db.delete(users)
+}
+

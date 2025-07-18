@@ -1,5 +1,5 @@
 import { setUser } from "./config"
-import { createUser, getUser } from "./lib/db/queries/users"
+import { clearUsers, createUser, getUser } from "./lib/db/queries/users"
 
 type CommandHandler = (cmdName: string, ...args: string[]) => Promise<void>
 
@@ -45,3 +45,9 @@ export async function registerCommand(registry: CommandsRegistry, cmdName: strin
 export async function runCommand(registry: CommandsRegistry, cmdName: string, ...args:string[]) {
   await registry[cmdName](cmdName, ...args)
 }
+
+export async function handlerReset(cmdName: string, ...args:string[]) {
+  await clearUsers()
+  process.exit(0)
+}
+
