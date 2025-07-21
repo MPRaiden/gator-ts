@@ -1,5 +1,5 @@
-import { setUser } from "./config"
-import { clearUsers, createUser, getUser } from "./lib/db/queries/users"
+import { getCurrentUserName, setUser } from "./config"
+import { clearUsers, createUser, getUser, getUsers } from "./lib/db/queries/users"
 
 type CommandHandler = (cmdName: string, ...args: string[]) => Promise<void>
 
@@ -49,5 +49,17 @@ export async function runCommand(registry: CommandsRegistry, cmdName: string, ..
 export async function handlerReset(cmdName: string, ...args:string[]) {
   await clearUsers()
   process.exit(0)
+}
+
+export async function handlerUsers(cmdName:string, ...args:string[]) {
+  const loggedInUser = getCurrentUserName()
+  const users = await getUsers()
+  for (const user of users) {
+    if (loggedInUser === user.name) {
+      console.log(`* ${user.name} (current)\n`)
+    } else {
+      console.log(`* ${user.name}\n`)
+    }
+  }
 }
 

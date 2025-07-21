@@ -16,3 +16,8 @@ export async function clearUsers() {
   await db.delete(users)
 }
 
+export async function getUsers() {
+  const allUsers = await db.select().from(users)
+  return allUsers
+}
+
