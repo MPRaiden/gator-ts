@@ -1,5 +1,6 @@
 import { getCurrentUserName, setUser } from "./config"
 import { clearUsers, createUser, getUser, getUsers } from "./lib/db/queries/users"
+import { fetchFeed } from "./rss-feed"
 
 type CommandHandler = (cmdName: string, ...args: string[]) => Promise<void>
 
@@ -61,5 +62,10 @@ export async function handlerUsers(cmdName:string, ...args:string[]) {
       console.log(`* ${user.name}\n`)
     }
   }
+}
+
+export async function handlerAgg(cmdName: string, ...args:string[]) {
+  const singleFeed = await fetchFeed("https://www.wagslane.dev/index.xml")
+  console.log(JSON.stringify(singleFeed))
 }
 
