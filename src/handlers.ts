@@ -1,6 +1,7 @@
 import { getCurrentUserName, setUser } from "./config"
+import { createFeed } from "./lib/db/queries/feeds"
 import { clearUsers, createUser, getUser, getUsers } from "./lib/db/queries/users"
-import { fetchFeed } from "./rss-feed"
+import { fetchFeed, printFeed } from "./rss-feed"
 
 type CommandHandler = (cmdName: string, ...args: string[]) => Promise<void>
 
@@ -68,4 +69,17 @@ export async function handlerAgg(cmdName: string, ...args:string[]) {
   const singleFeed = await fetchFeed("https://www.wagslane.dev/index.xml")
   console.log(JSON.stringify(singleFeed))
 }
+
+export async function handlerAddFeed(cmdName: string, ...args:string[]) {
+  const currentUserName = getCurrentUserName()
+  const currentUser = await getUser(currentUserName)
+  const currentUserId = currentUser.id
+  const feedName = args[0]
+  const feedUrl = args[1]
+
+  const createdFeed = await createFeed(feedName, feedUrl, currentUserId)
+
+  printFeed(createdFeed, currentUser)
+}
+
 

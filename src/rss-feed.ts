@@ -1,4 +1,6 @@
 import { XMLParser } from "fast-xml-parser"
+import { Feed, User } from "./lib/db/schema";
+
 
 export async function fetchFeed(feedURL:string) {
   const response = await fetch(feedURL, {headers: {'User-agent':'Gator'}})
@@ -59,3 +61,9 @@ export async function fetchFeed(feedURL:string) {
 
   return rssFeed
 }
+
+export function printFeed(feed: Feed, user: User) {
+  console.log(`${JSON.stringify(feed)}\n`)
+  console.log(`${JSON.stringify(user)}\n`)
+}
+
