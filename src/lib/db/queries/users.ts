@@ -12,6 +12,11 @@ export async function getUser(name:string) {
   return foundUser
 }
 
+export async function getUserById(id:string) {
+  const [foundUser] = await db.select().from(users).where(sql`${users.id} = ${id}`)
+  return foundUser
+}
+
 export async function clearUsers() {
   await db.delete(users)
 }

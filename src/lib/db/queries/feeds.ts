@@ -6,3 +6,8 @@ export async function createFeed(name:string, url:string, userId:string){
   return feed
 }
 
+export async function getFeeds() {
+  const allFeeds = await db.select().from(feeds)
+  return allFeeds
+}
+

@@ -1,4 +1,4 @@
-import { handlerAddFeed, handlerAgg, handlerLogin, handlerRegister, handlerReset, handlerUsers, registerCommand, runCommand } from "./handlers";
+import { handlerAddFeed, handlerAgg, handlerFeeds, handlerLogin, handlerRegister, handlerReset, handlerUsers, registerCommand, runCommand } from "./handlers";
 
 async function main() {
   const commandsRegistry = {}
@@ -8,6 +8,7 @@ async function main() {
   await registerCommand(commandsRegistry, 'users', handlerUsers)
   await registerCommand(commandsRegistry, 'agg', handlerAgg)
   await registerCommand(commandsRegistry, 'addfeed', handlerAddFeed)
+  await registerCommand(commandsRegistry, 'feeds', handlerFeeds)
 
   const args = process.argv
   const userArgs = args.slice(2)
