@@ -22,7 +22,7 @@ export async function clearUsers() {
 }
 
 export async function getUsers() {
-  const allUsers = await db.select().from(users)
+ const allUsers = await db.select().from(users)
   return allUsers
 }
 
