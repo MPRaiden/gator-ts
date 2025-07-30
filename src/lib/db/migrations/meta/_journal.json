@@ -15,6 +15,13 @@
       "when": 1753255300212,
       "tag": "0001_overconfident_jack_murdock",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1753860238359,
+      "tag": "0002_marvelous_hawkeye",
+      "breakpoints": true
     }
   ]
 }

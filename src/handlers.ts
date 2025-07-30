@@ -1,5 +1,6 @@
 import { getCurrentUserName, setUser } from "./config"
-import { createFeed, getFeeds } from "./lib/db/queries/feeds"
+import { createFeedFollow, getFeedFollowsForUser } from "./lib/db/queries/feed_follows"
+import { createFeed, getFeedByUrl, getFeeds } from "./lib/db/queries/feeds"
 import { clearUsers, createUser, getUser, getUserById, getUsers } from "./lib/db/queries/users"
 import { fetchFeed, printFeed } from "./rss-feed"
 
@@ -78,8 +79,10 @@ export async function handlerAddFeed(cmdName: string, ...args:string[]) {
   const feedUrl = args[1]
 
   const createdFeed = await createFeed(feedName, feedUrl, currentUserId)
+  const newFeedFollow = await createFeedFollow(currentUserId, createdFeed.id)
 
   printFeed(createdFeed, currentUser)
+  console.log(newFeedFollow.feedsName)
 }
 
 export async function handlerFeeds(cmdName:string, ...args:string[]) {
@@ -89,6 +92,30 @@ export async function handlerFeeds(cmdName:string, ...args:string[]) {
     console.log(feed.url)
     const feedOwner = await getUserById(feed.userId)
     console.log(feedOwner.name)
+  }
+}
+
+export async function handlerFollow(cmdName:string, ...args:string[]) {
+  const url = args[0]
+
+  const currUserName = getCurrentUserName()
+  const currUser = await getUser(currUserName)
+
+  const feed = await getFeedByUrl(url)
+
+  const newFeedFollow = await createFeedFollow(currUser.id, feed.id)
+
+  console.log(`${newFeedFollow.feedsName}\n${newFeedFollow.usersName}\n`)
+}
+
+export async function handlerFollowing() {
+  const currUserName = getCurrentUserName()
+  const currUser = await getUser(currUserName)
+
+  const userFeedFollows = await getFeedFollowsForUser(currUser.id)
+  
+  for (const feedFollow of userFeedFollows) {
+    console.log(feedFollow.feedName)
   }
 }
 
