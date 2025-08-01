@@ -2,6 +2,7 @@ import { getCurrentUserName, setUser } from "./config"
 import { createFeedFollow, getFeedFollowsForUser } from "./lib/db/queries/feed_follows"
 import { createFeed, getFeedByUrl, getFeeds } from "./lib/db/queries/feeds"
 import { clearUsers, createUser, getUser, getUserById, getUsers } from "./lib/db/queries/users"
+import { User } from "./lib/db/schema"
 import { fetchFeed, printFeed } from "./rss-feed"
 
 type CommandHandler = (cmdName: string, ...args: string[]) => Promise<void>
@@ -71,20 +72,6 @@ export async function handlerAgg(cmdName: string, ...args:string[]) {
   console.log(JSON.stringify(singleFeed))
 }
 
-export async function handlerAddFeed(cmdName: string, ...args:string[]) {
-  const currentUserName = getCurrentUserName()
-  const currentUser = await getUser(currentUserName)
-  const currentUserId = currentUser.id
-  const feedName = args[0]
-  const feedUrl = args[1]
-
-  const createdFeed = await createFeed(feedName, feedUrl, currentUserId)
-  const newFeedFollow = await createFeedFollow(currentUserId, createdFeed.id)
-
-  printFeed(createdFeed, currentUser)
-  console.log(newFeedFollow.feedsName)
-}
-
 export async function handlerFeeds(cmdName:string, ...args:string[]) {
   const feeds = await getFeeds()
   for (const feed of feeds) {
@@ -95,24 +82,29 @@ export async function handlerFeeds(cmdName:string, ...args:string[]) {
   }
 }
 
-export async function handlerFollow(cmdName:string, ...args:string[]) {
-  const url = args[0]
+export async function handlerAddFeed(cmdName: string, user: User, ...args:string[]) {
+  const currentUserId = user.id
+  const feedName = args[0]
+  const feedUrl = args[1]
 
-  const currUserName = getCurrentUserName()
-  const currUser = await getUser(currUserName)
+  const createdFeed = await createFeed(feedName, feedUrl, currentUserId)
+  const newFeedFollow = await createFeedFollow(currentUserId, createdFeed.id)
+
+  printFeed(createdFeed, user)
+  console.log(newFeedFollow.feedsName)
+}
+
+export async function handlerFollow(cmdName: string, user: User, ...args:string[]) {
+  const url = args[0]
 
   const feed = await getFeedByUrl(url)
 
-  const newFeedFollow = await createFeedFollow(currUser.id, feed.id)
+  const newFeedFollow = await createFeedFollow(user.id, feed.id)
 
   console.log(`${newFeedFollow.feedsName}\n${newFeedFollow.usersName}\n`)
 }
 
-export async function handlerFollowing() {
-  const currUserName = getCurrentUserName()
-  const currUser = await getUser(currUserName)
-
-  const userFeedFollows = await getFeedFollowsForUser(currUser.id)
+export async function handlerFollowing(cmdName: string, user: User, ...args:string[]) { const userFeedFollows = await getFeedFollowsForUser(user.id)
   
   for (const feedFollow of userFeedFollows) {
     console.log(feedFollow.feedName)

@@ -1,4 +1,5 @@
 import { handlerAddFeed, handlerAgg, handlerFeeds, handlerFollow, handlerFollowing, handlerLogin, handlerRegister, handlerReset, handlerUsers, registerCommand, runCommand } from "./handlers";
+import { middlewareLoggedIn } from "./middleware";
 
 async function main() {
   const commandsRegistry = {}
@@ -7,10 +8,10 @@ async function main() {
   await registerCommand(commandsRegistry, 'reset', handlerReset)
   await registerCommand(commandsRegistry, 'users', handlerUsers)
   await registerCommand(commandsRegistry, 'agg', handlerAgg)
-  await registerCommand(commandsRegistry, 'addfeed', handlerAddFeed)
   await registerCommand(commandsRegistry, 'feeds', handlerFeeds)
-  await registerCommand(commandsRegistry, 'follow', handlerFollow)
-  await registerCommand(commandsRegistry, 'following', handlerFollowing)
+  await registerCommand(commandsRegistry, 'addfeed', middlewareLoggedIn(handlerAddFeed))
+  await registerCommand(commandsRegistry, 'follow', middlewareLoggedIn(handlerFollow))
+  await registerCommand(commandsRegistry, 'following', middlewareLoggedIn(handlerFollowing))
 
   const args = process.argv
   const userArgs = args.slice(2)
