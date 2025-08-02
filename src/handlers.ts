@@ -1,5 +1,5 @@
 import { getCurrentUserName, setUser } from "./config"
-import { createFeedFollow, getFeedFollowsForUser } from "./lib/db/queries/feed_follows"
+import { createFeedFollow, deleteFeedFollow, getFeedFollowsForUser } from "./lib/db/queries/feed_follows"
 import { createFeed, getFeedByUrl, getFeeds } from "./lib/db/queries/feeds"
 import { clearUsers, createUser, getUser, getUserById, getUsers } from "./lib/db/queries/users"
 import { User } from "./lib/db/schema"
@@ -9,7 +9,7 @@ type CommandHandler = (cmdName: string, ...args: string[]) => Promise<void>
 
 export type CommandsRegistry = Record<string, CommandHandler>
 
-export async function handlerLogin(cmdName: string, ...args:string[]) {
+export async function handlerLogin(cmdName: string, ...args: string[]) {
   if (!args.length) {
     throw new Error(`function handlerLogin() - expects at least one argument but received - ${args.length}`)
   }
@@ -25,7 +25,7 @@ export async function handlerLogin(cmdName: string, ...args:string[]) {
   console.log(`function handlerLogin() - User ${userToSet} has been set\n`)
 }
 
-export async function handlerRegister(cmdName:string, ...args:string[]) {
+export async function handlerRegister(cmdName: string, ...args: string[]) {
   if (!args.length) {
     throw new Error(`function handlerRegister() - expects at least one argument but received - ${args.length}`)
   }
@@ -35,7 +35,7 @@ export async function handlerRegister(cmdName:string, ...args:string[]) {
   if (existingUser) {
     throw new Error(`function handlerRegister() - user with name ${userName} already exists`)
   }
-  
+
   await createUser(userName)
   setUser(userName)
 
@@ -46,16 +46,16 @@ export async function registerCommand(registry: CommandsRegistry, cmdName: strin
   registry[cmdName] = handler
 }
 
-export async function runCommand(registry: CommandsRegistry, cmdName: string, ...args:string[]) {
+export async function runCommand(registry: CommandsRegistry, cmdName: string, ...args: string[]) {
   await registry[cmdName](cmdName, ...args)
 }
 
-export async function handlerReset(cmdName: string, ...args:string[]) {
+export async function handlerReset(cmdName: string, ...args: string[]) {
   await clearUsers()
   process.exit(0)
 }
 
-export async function handlerUsers(cmdName:string, ...args:string[]) {
+export async function handlerUsers(cmdName: string, ...args: string[]) {
   const loggedInUser = getCurrentUserName()
   const users = await getUsers()
   for (const user of users) {
@@ -67,12 +67,12 @@ export async function handlerUsers(cmdName:string, ...args:string[]) {
   }
 }
 
-export async function handlerAgg(cmdName: string, ...args:string[]) {
+export async function handlerAgg(cmdName: string, ...args: string[]) {
   const singleFeed = await fetchFeed("https://www.wagslane.dev/index.xml")
   console.log(JSON.stringify(singleFeed))
 }
 
-export async function handlerFeeds(cmdName:string, ...args:string[]) {
+export async function handlerFeeds(cmdName: string, ...args: string[]) {
   const feeds = await getFeeds()
   for (const feed of feeds) {
     console.log(feed.name)
@@ -82,7 +82,7 @@ export async function handlerFeeds(cmdName:string, ...args:string[]) {
   }
 }
 
-export async function handlerAddFeed(cmdName: string, user: User, ...args:string[]) {
+export async function handlerAddFeed(cmdName: string, user: User, ...args: string[]) {
   const currentUserId = user.id
   const feedName = args[0]
   const feedUrl = args[1]
@@ -94,7 +94,7 @@ export async function handlerAddFeed(cmdName: string, user: User, ...args:string
   console.log(newFeedFollow.feedsName)
 }
 
-export async function handlerFollow(cmdName: string, user: User, ...args:string[]) {
+export async function handlerFollow(cmdName: string, user: User, ...args: string[]) {
   const url = args[0]
 
   const feed = await getFeedByUrl(url)
@@ -104,10 +104,17 @@ export async function handlerFollow(cmdName: string, user: User, ...args:string[
   console.log(`${newFeedFollow.feedsName}\n${newFeedFollow.usersName}\n`)
 }
 
-export async function handlerFollowing(cmdName: string, user: User, ...args:string[]) { const userFeedFollows = await getFeedFollowsForUser(user.id)
-  
+export async function handlerFollowing(cmdName: string, user: User, ...args: string[]) {
+  const userFeedFollows = await getFeedFollowsForUser(user.id)
+
   for (const feedFollow of userFeedFollows) {
     console.log(feedFollow.feedName)
   }
+}
+
+export async function handlerUnfollow(cmdName: string, user: User, ...args: string[]) {
+  const feedUrl = args[0]
+
+  await deleteFeedFollow(user.id, feedUrl)
 }
 

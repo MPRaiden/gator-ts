@@ -1,4 +1,4 @@
-import { handlerAddFeed, handlerAgg, handlerFeeds, handlerFollow, handlerFollowing, handlerLogin, handlerRegister, handlerReset, handlerUsers, registerCommand, runCommand } from "./handlers";
+import { handlerAddFeed, handlerAgg, handlerFeeds, handlerFollow, handlerFollowing, handlerLogin, handlerRegister, handlerReset, handlerUnfollow, handlerUsers, registerCommand, runCommand } from "./handlers";
 import { middlewareLoggedIn } from "./middleware";
 
 async function main() {
@@ -12,6 +12,7 @@ async function main() {
   await registerCommand(commandsRegistry, 'addfeed', middlewareLoggedIn(handlerAddFeed))
   await registerCommand(commandsRegistry, 'follow', middlewareLoggedIn(handlerFollow))
   await registerCommand(commandsRegistry, 'following', middlewareLoggedIn(handlerFollowing))
+  await registerCommand(commandsRegistry, 'unfollow', middlewareLoggedIn(handlerUnfollow))
 
   const args = process.argv
   const userArgs = args.slice(2)
@@ -26,7 +27,7 @@ async function main() {
 
   try {
     await runCommand(commandsRegistry, commandName, ...commArgs)
-  } catch(error) {
+  } catch (error) {
     if (error instanceof Error) {
       console.log(`function main() - error messsage:\n${error.message}`)
       process.exit(1)
