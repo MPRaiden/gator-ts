@@ -29,17 +29,17 @@ export async function fetchFeed(feedURL:string) {
   const channelLink = channel.link
   const channelDescription = channel.description
 
-  let channelItems;
-
-  if (channel.item && !Array.isArray(channel.item)) {
-     channelItems = []
+  let items = []
+  if (channel.item) {
+    // Make sure items is *always* an array
+    items = Array.isArray(channel.item) ? channel.item : [channel.item]
   }
 
-  if (channel.item && Array.isArray(channel.item)) {
-  channelItems = []  // Start with an empty array
-  for (const i of channel.item) {
+  const channelItems = []
+
+  for (const i of items) {
     const itemFieldValues = [i?.title, i?.link, i?.description, i?.pubDate]
-    if (!itemFieldValues.includes(undefined)) {  // Only add if all fields are present
+    if (!itemFieldValues.includes(undefined)) {
       channelItems.push({
         title: i.title,
         link: i.link,
@@ -48,7 +48,6 @@ export async function fetchFeed(feedURL:string) {
       })
     }
   }
-}
 
   const rssFeed = {
     channel: {
