@@ -1,6 +1,7 @@
 import { getCurrentUserName, setUser } from "./config"
 import { createFeedFollow, deleteFeedFollow, getFeedFollowsForUser } from "./lib/db/queries/feed_follows"
 import { createFeed, getFeedByUrl, getFeeds, scrapeFeeds } from "./lib/db/queries/feeds"
+import { getPostsForUser } from "./lib/db/queries/posts"
 import { clearUsers, createUser, getUser, getUserById, getUsers } from "./lib/db/queries/users"
 import { User } from "./lib/db/schema"
 import { printFeed } from "./rss-feed"
@@ -150,3 +151,14 @@ export function handleError(err: unknown) {
   );
 }
 
+export async function handlerBrowse(cmdName: string, user: User, ...args: string[]) {
+  const limitNumPosts = args[0] ? Number(args[0]) : 2
+
+  const usersPosts = await getPostsForUser(user.id, limitNumPosts)
+
+  for (const post of usersPosts) {
+    console.log(post.title)
+    console.log(post.description)
+    console.log(post.url)
+  }
+}
