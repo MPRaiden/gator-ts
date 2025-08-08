@@ -1,7 +1,8 @@
 import { eq, sql } from "drizzle-orm"
 import { db } from ".."
-import { feeds } from "../schema"
+import { Feed, feeds } from "../schema"
 import { fetchFeed } from "src/rss-feed"
+import { createPost } from "./posts"
 
 export async function createFeed(name:string, url:string, userId:string){
   const [feed] = await db.insert(feeds).values({name:name, url:url, userId:userId}).returning()  
@@ -33,16 +34,29 @@ export async function getNextFeedToFetch() {
 }
 
 export async function scrapeFeeds() {
-  const nextFeed = await getNextFeedToFetch()
-  
-  if (!nextFeed) {
-    throw new Error(`function scrapeFeeds() - no feed found!`)
+  const feed = await getNextFeedToFetch();
+  if (!feed) {
+    console.log(`No feeds to fetch.`);
+    return;
   }
-  await markFeedFetched(nextFeed.id)
-
-  const feed = await fetchFeed(nextFeed.url)
-
-  for (const item of feed.channel.item) {
-    console.log(item.title)
-  }
+  console.log(`Found a feed to fetch!`);
+  scrapeFeed(feed);
 }
+
+export async function scrapeFeed(feed: Feed) {
+  await markFeedFetched(feed.id);
+
+  const feedData = await fetchFeed(feed.url);
+
+  for (const feedItem of feedData.channel.item) {
+    await createPost(feedItem.title, feedItem.link, feedItem.description, feed.id, feedItem.pubDate)
+  }
+
+
+  console.log(
+    `Feed ${feed.name} collected, ${feedData.channel.item.length} posts found`,
+  );
+}
+
+
+

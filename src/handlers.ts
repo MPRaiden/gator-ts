@@ -1,9 +1,9 @@
 import { getCurrentUserName, setUser } from "./config"
 import { createFeedFollow, deleteFeedFollow, getFeedFollowsForUser } from "./lib/db/queries/feed_follows"
-import { createFeed, getFeedByUrl, getFeeds, getNextFeedToFetch, markFeedFetched } from "./lib/db/queries/feeds"
+import { createFeed, getFeedByUrl, getFeeds, scrapeFeeds } from "./lib/db/queries/feeds"
 import { clearUsers, createUser, getUser, getUserById, getUsers } from "./lib/db/queries/users"
-import { Feed, User } from "./lib/db/schema"
-import { fetchFeed, printFeed } from "./rss-feed"
+import { User } from "./lib/db/schema"
+import { printFeed } from "./rss-feed"
 import { parseDuration } from "./time"
 
 type CommandHandler = (cmdName: string, ...args: string[]) => Promise<void>
@@ -68,31 +68,6 @@ export async function handlerUsers(cmdName: string, ...args: string[]) {
   }
 }
 
-async function scrapeFeeds() {
-  const feed = await getNextFeedToFetch();
-  if (!feed) {
-    console.log(`No feeds to fetch.`);
-    return;
-  }
-  console.log(`Found a feed to fetch!`);
-  scrapeFeed(feed);
-}
-
-async function scrapeFeed(feed: Feed) {
-  await markFeedFetched(feed.id);
-
-  const feedData = await fetchFeed(feed.url);
-
-  console.log(
-    `Feed ${feed.name} collected, ${feedData.channel.item.length} posts found`,
-  );
-}
-
-function handleError(err: unknown) {
-  console.error(
-    `Error scraping feeds: ${err instanceof Error ? err.message : err}`,
-  );
-}
 
 export async function handlerAgg(cmdName: string, ...args: string[]) {
   if (args.length !== 1) {
@@ -167,5 +142,11 @@ export async function handlerUnfollow(cmdName: string, user: User, ...args: stri
   const feedUrl = args[0]
 
   await deleteFeedFollow(user.id, feedUrl)
+}
+
+export function handleError(err: unknown) {
+  console.error(
+    `function handleError() - Error scraping feeds: ${err instanceof Error ? err.message : err}`,
+  );
 }
 
