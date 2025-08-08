@@ -1,4 +1,4 @@
-# Feed CLI Tool
+# Gator RSS Feed CLI Tool
 
 A command-line tool for managing feeds, following users, and browsing content.  
 This tool supports user authentication, feed aggregation, and subscription management.
