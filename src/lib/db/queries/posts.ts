@@ -7,13 +7,15 @@ export async function createPost(title: string, url: string, description: string
   return post
 }
 
-export async function getPostsForUser(userId: string, numPosts: number) {
+export async function getPostsForUser(userId: string, numPosts: number, ordering: string) {
+  const direction = ordering === 'ASC' ? 'ASC' : 'DESC';
+
   const userFeeds = await db.select().from(feeds).where(eq(feeds.userId, userId))
 
   const userPosts = []
 
   for (const userFeed of userFeeds) {
-    const userPost = await db.select().from(posts).where(eq(posts.feedId, userFeed.id)).orderBy(sql`${posts.createdAt} DESC`)
+    const userPost = await db.select().from(posts).where(eq(posts.feedId, userFeed.id)).orderBy(sql`${posts.createdAt} ${sql.raw(direction)}`)
     userPosts.push(...userPost)
   }
 

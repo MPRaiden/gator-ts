@@ -1,4 +1,5 @@
 import { getCurrentUserName, setUser } from "./config"
+import { validateOrderingInput } from "./helpers"
 import { createFeedFollow, deleteFeedFollow, getFeedFollowsForUser } from "./lib/db/queries/feed_follows"
 import { createFeed, getFeedByUrl, getFeeds, scrapeFeeds } from "./lib/db/queries/feeds"
 import { getPostsForUser } from "./lib/db/queries/posts"
@@ -153,8 +154,9 @@ export function handleError(err: unknown) {
 
 export async function handlerBrowse(cmdName: string, user: User, ...args: string[]) {
   const limitNumPosts = args[0] ? Number(args[0]) : 2
+  const ordering = args[1] ? validateOrderingInput(args[1]) : 'DESC'
 
-  const usersPosts = await getPostsForUser(user.id, limitNumPosts)
+  const usersPosts = await getPostsForUser(user.id, limitNumPosts, ordering)
 
   for (const post of usersPosts) {
     console.log(post.title)
@@ -162,3 +164,4 @@ export async function handlerBrowse(cmdName: string, user: User, ...args: string
     console.log(post.url)
   }
 }
+
